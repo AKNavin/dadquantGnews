@@ -42,9 +42,10 @@ st.write("🔍 Fetch and classify market sector news headlines for a selected da
 
 # Date picker for 'from' date
 selected_date = st.date_input("Select Date (From)", datetime.today())
+from_date = datetime.combine(selected_date, datetime.min.time())
 
 # Calculate 'to' date (next day)
-to_date = selected_date + timedelta(days=1)
+to_date = from_date + timedelta(days=1)
 
 # Display selected date range
 st.write(f"📅 Searching from **{selected_date.strftime('%Y-%m-%d')}** to **{to_date.strftime('%Y-%m-%d')}**")
@@ -61,7 +62,7 @@ if st.button("Fetch News"):
             'q': group,
             'country': 'in',
             'lang': 'en',
-            'from': selected_date.strftime('%Y-%m-%dT00:00:00Z'),
+            'from': from_date.strftime('%Y-%m-%dT00:00:00Z'),
             'to': to_date.strftime('%Y-%m-%dT00:00:00Z'),
             'sortby': 'publishedAt',
             'token': API_KEY,
