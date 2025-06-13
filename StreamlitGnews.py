@@ -1,6 +1,6 @@
 import streamlit as st
 import requests
-from datetime import datetime
+from datetime import datetime, timedelta
 from collections import Counter
 import time
 
@@ -38,23 +38,31 @@ sector_groups = [
 
 # Streamlit app UI
 st.title("📈 India Market Sector News Dashboard")
-st.write("🔍 Fetch and classify today's market sector news headlines.")
+st.write("🔍 Fetch and classify market sector news headlines for a selected date range.")
 
-selected_date = st.date_input("Select Date", datetime.today())
+# Date picker for 'from' date
+selected_date = st.date_input("Select Date (From)", datetime.today())
+
+# Calculate 'to' date (next day)
+to_date = selected_date + timedelta(days=1)
+
+# Display selected date range
+st.write(f"📅 Searching from **{selected_date.strftime('%Y-%m-%d')}** to **{to_date.strftime('%Y-%m-%d')}**")
 
 if st.button("Fetch News"):
     sector_hits = Counter()
     seen_urls = set()
     article_index = 1
 
-    st.info(f"🔎 Fetching sector-wise news from GNews for {selected_date.strftime('%Y-%m-%d')}...")
+    st.info(f"🔎 Fetching sector-wise news from GNews from {selected_date.strftime('%Y-%m-%d')} to {to_date.strftime('%Y-%m-%d')}...")
 
     for group in sector_groups:
         params = {
             'q': group,
             'country': 'in',
             'lang': 'en',
-            'from': selected_date.strftime('%Y-%m-%d'),
+            'from': selected_date.strftime('%Y-%m-%dT00:00:00Z'),
+            'to': to_date.strftime('%Y-%m-%dT00:00:00Z'),
             'sortby': 'publishedAt',
             'token': API_KEY,
             'max': 10
@@ -89,6 +97,6 @@ if st.button("Fetch News"):
         else:
             st.error(f"Error: {response.status_code} - {response.text}")
 
-    st.subheader("📊 Sector Mentions Today:")
+    st.subheader("📊 Sector Mentions in Results:")
     for sector, count in sector_hits.most_common():
         st.write(f"**{sector}**: {count}")
